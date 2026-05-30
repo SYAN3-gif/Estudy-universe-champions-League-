@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eStudyUniverse - League Standings</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content auth-form">
+            <h2>Welcome to eStudyUniverse</h2>
+            <p>Sign in to manage the league</p>
+            <button id="googleSignInBtn" class="btn btn-primary btn-large">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <text x="12" y="16" text-anchor="middle" font-size="14" fill="currentColor">G</text>
+                </svg>
+                Sign in with Google
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="app" class="app hidden">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-title">
+                    <h1>eStudyUniverse</h1>
+                    <p class="subtitle">League Standings & Rankings</p>
+                </div>
+                <div class="header-controls">
+                    <select id="seasonSelect" class="season-select">
+                        <option value="">Loading seasons...</option>
+                    </select>
+                    <button id="adminToggle" class="btn btn-secondary" style="display: none;">
+                        Admin Panel
+                    </button>
+                    <button id="signOutBtn" class="btn btn-ghost">Sign Out</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Standings Section -->
+            <section class="standings-section">
+                <div class="section-header">
+                    <h2>Current Standings</h2>
+                    <button id="addPlayerBtn" class="btn btn-primary btn-sm" style="display: none;">
+                        + Add Player
+                    </button>
+                </div>
+
+                <div class="standings-container">
+                    <div id="standingsTable" class="standings-table">
+                        <div class="table-header">
+                            <div class="col-pos">Pos</div>
+                            <div class="col-player">Player</div>
+                            <div class="col-xp">XP</div>
+                            <div class="col-p">P</div>
+                            <div class="col-w">W</div>
+                            <div class="col-d">D</div>
+                            <div class="col-l">L</div>
+                            <div class="col-quiz">Avg Quiz %</div>
+                            <div class="col-actions">Actions</div>
+                        </div>
+                        <div id="playerRows" class="table-rows">
+                            <div class="skeleton-row"></div>
+                            <div class="skeleton-row"></div>
+                            <div class="skeleton-row"></div>
+                        </div>
+                    </div>
+                    <div id="emptyState" class="empty-state hidden">
+                        <div class="empty-icon">📊</div>
+                        <h3>No players yet</h3>
+                        <p>Add the first player to get started</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Match Recording Section -->
+            <section class="match-section">
+                <div class="section-header">
+                    <h2>Record Match</h2>
+                </div>
+                <div class="match-form-container">
+                    <form id="matchForm" class="match-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Player A</label>
+                                <select id="playerA" required>
+                                    <option value="">Select player...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Quiz Score A (%)</label>
+                                <input type="number" id="scoreA" min="0" max="100" step="0.1" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Result</label>
+                                <div class="result-buttons">
+                                    <button type="button" class="result-btn" data-result="A_WIN">A Wins</button>
+                                    <button type="button" class="result-btn" data-result="DRAW">Draw</button>
+                                    <button type="button" class="result-btn" data-result="B_WIN">B Wins</button>
+                                </div>
+                                <input type="hidden" id="matchResult" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Player B</label>
+                                <select id="playerB" required>
+                                    <option value="">Select player...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Quiz Score B (%)</label>
+                                <input type="number" id="scoreB" min="0" max="100" step="0.1" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-large">Record Match</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Match History Section -->
+            <section class="history-section">
+                <div class="section-header">
+                    <h2>Match History</h2>
+                </div>
+                <div id="matchHistory" class="match-history">
+                    <div class="skeleton-row"></div>
+                    <div class="skeleton-row"></div>
+                    <div class="skeleton-row"></div>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section class="analytics-section">
+                <div class="section-header">
+                    <h2>Analytics & Insights</h2>
+                </div>
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <div class="analytics-label">Total Matches</div>
+                        <div class="analytics-value" id="totalMatches">0</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-label">Highest XP</div>
+                        <div class="analytics-value" id="highestXP">0</div>
+                        <div class="analytics-subtext" id="highestXPPlayer">—</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-label">Best Quiz Score</div>
+                        <div class="analytics-value" id="bestQuiz">0%</div>
+                        <div class="analytics-subtext" id="bestQuizPlayer">—</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-label">Active Players</div>
+                        <div class="analytics-value" id="activePlayers">0</div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3>XP Distribution</h3>
+                        <canvas id="xpChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Win Rate by Player</h3>
+                        <canvas id="winRateChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Admin Panel -->
+        <div id="adminPanel" class="admin-panel hidden">
+            <div class="admin-header">
+                <h2>Admin Panel</h2>
+                <button id="closeAdminBtn" class="btn btn-ghost">Close</button>
+            </div>
+
+            <div class="admin-grid">
+                <!-- Season Management -->
+                <div class="admin-card">
+                    <h3>Season Management</h3>
+                    <div class="admin-section">
+                        <input type="text" id="newSeasonName" placeholder="New season name" class="input-field">
+                        <button id="createSeasonBtn" class="btn btn-primary">Create Season</button>
+                    </div>
+                    <div class="admin-section">
+                        <button id="resetSeasonBtn" class="btn btn-warning">Reset Current Season</button>
+                    </div>
+                </div>
+
+                <!-- Player Management -->
+                <div class="admin-card">
+                    <h3>Player Management</h3>
+                    <div class="admin-section">
+                        <input type="text" id="newPlayerName" placeholder="Player name (max 20 chars)" maxlength="20" class="input-field">
+                        <button id="createPlayerBtn" class="btn btn-primary">Add Player</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Add Player Modal -->
+    <div id="addPlayerModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Player</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="addPlayerForm" class="form">
+                <div class="form-group">
+                    <label>Player Name</label>
+                    <input type="text" id="playerNameInput" placeholder="Enter player name" maxlength="20" required>
+                    <small class="form-hint">Max 20 characters</small>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Add Player</button>
+                    <button type="button" class="btn btn-ghost modal-close">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div id="deleteModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Remove Player</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <p>Are you sure you want to remove <strong id="deletePlayerName"></strong>? This will also delete all their matches.</p>
+            <div class="form-actions">
+                <button id="confirmDeleteBtn" class="btn btn-danger">Remove Player</button>
+                <button class="btn btn-ghost modal-close">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Firebase -->
+    <script type="module" src="firebase.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
